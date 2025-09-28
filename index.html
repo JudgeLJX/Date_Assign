@@ -145,7 +145,7 @@ async function submit(){
       body: JSON.stringify(payload)
     });
     if(!res.ok) throw new Error();
-    alert('Submit Succeed！');
+    alert('Submission Successful！');
   }catch(e){ alert('Submit Failed'); }
 }
 submitBtn.addEventListener('click', submit);
