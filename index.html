@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>空闲时间收集（简化版）</title>
+  <title>Time Arrangement</title>
   <style>
     :root{
       --bg:#f1f5f9; --card:#ffffff; --text:#0f172a;
@@ -39,17 +39,17 @@
   <div class="container">
     <div class="card" id="app">
       <div class="header">
-        <h1>空闲时间收集（11.16–11.30，工作日）</h1>
-        <div class="legend"><span class="pill"><span class="dot"></span> 选中 = 空闲</span></div>
+        <h1>Free Time Selection（11.16–11.30，Work Day）</h1>
+        <div class="legend"><span class="pill"><span class="dot"></span> Chosen = Free</span></div>
       </div>
 
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th style="text-align:left">日期</th>
-              <th>上午 9:00-1:00</th>
-              <th>下午 1:00-5:00</th>
+              <th style="text-align:left">Date</th>
+              <th>Morning 9:00-1:00</th>
+              <th>Afternoon 1:00-5:00</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -58,10 +58,10 @@
 
       <div class="footer">
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <input type="text" id="name" placeholder="您的称呼（必填）" />
-          <input type="email" id="email" placeholder="邮箱（可选）" />
+          <input type="text" id="name" placeholder="Your Name（Needed）" />
+          
         </div>
-        <button class="btn" id="submitBtn">提交</button>
+        <button class="btn" id="submitBtn">Submit</button>
       </div>
     </div>
   </div>
@@ -71,7 +71,7 @@ const FORM_ENDPOINT = "https://formspree.io/f/movkvzrv"; // ←替换为你的�
 
 const RANGE_START = '2025-11-16';
 const RANGE_END   = '2025-11-30';
-const COLS = ["上午 9:00-1:00","下午 1:00-5:00"];
+const COLS = ["Morning 9:00-1:00","Afternoon 1:00-5:00"];
 
 const tbody = document.getElementById('tbody');
 const submitBtn = document.getElementById('submitBtn');
@@ -119,7 +119,7 @@ buildRows();
 
 async function submit(){
   const name = nameInput.value.trim();
-  if(!name){ alert('请填写称呼'); return; }
+  if(!name){ alert('Please fill your name'); return; }
   const selections = [];
   tbody.querySelectorAll('tr').forEach(row=>{
     const dateKey = row.querySelector('.datecell')?.dataset.date || '';
@@ -139,11 +139,6 @@ async function submit(){
     submittedAt: new Date().toISOString()
   };
 
-  const summary = selections.length
-    ? selections.map(s=>`${s.date} ${s.segment}：空闲`).join('\\n')
-    : '(未选择任何时段)';
-  alert(`提交内容：\\n称呼：${name}\\n${summary}`);
-
   if(/REPLACE_ME/.test(FORM_ENDPOINT)) return;
   try{
     const res = await fetch(FORM_ENDPOINT,{
@@ -152,11 +147,10 @@ async function submit(){
       body: JSON.stringify(payload)
     });
     if(!res.ok) throw new Error();
-    alert('提交成功！');
-  }catch(e){ alert('提交失败'); }
+    alert('Submit Succeed！');
+  }catch(e){ alert('Submit Failed'); }
 }
 submitBtn.addEventListener('click', submit);
 </script>
 </body>
 </html>
-
