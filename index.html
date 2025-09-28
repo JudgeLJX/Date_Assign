@@ -27,7 +27,7 @@
     .slot input{display:none}
     .tag{display:inline-block;padding:10px 12px;border-radius:10px;border:1px dashed #cbd5e1;min-width:140px;background:white}
     .slot input:checked + .tag{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.6);color:#065f46;font-weight:600}
-    .footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px}
+    .footer{display:flex;justify-content:flex-end;align-items:center;padding:16px 20px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px}
     input{font:inherit;border-radius:12px;border:1px solid var(--border);background:white;color:var(--text);padding:10px 12px}
     .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,#22c55e,#16a34a);color:white;cursor:pointer}
     .legend{font-size:12px;color:var(--muted)}
@@ -39,7 +39,10 @@
   <div class="container">
     <div class="card" id="app">
       <div class="header">
-        <h1>Free Time Selection（11.16–11.30，Work Day）</h1>
+        <h1>Choose Available Time</h1>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="text" id="name" placeholder="Your Name (Needed)" />
+        </div>
         <div class="legend"><span class="pill"><span class="dot"></span> Chosen = Free</span></div>
       </div>
 
@@ -57,10 +60,6 @@
       </div>
 
       <div class="footer">
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <input type="text" id="name" placeholder="Your Name（Needed）" />
-          
-        </div>
         <button class="btn" id="submitBtn">Submit</button>
       </div>
     </div>
