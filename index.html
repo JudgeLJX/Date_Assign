@@ -6,26 +6,16 @@
   <title>空闲时间收集（简化版）</title>
   <style>
     :root{
-      --bg:#f1f5f9;         /* 更亮的背景 */
-      --card:#ffffff;       /* 卡片白色 */
-      --text:#0f172a;       /* 正文深色 */
-      --muted:#475569;      /* 次要文字 */
-      --border:#e2e8f0;     /* 边框 */
-      --accent:#22c55e;     /* 选中：绿色 */
+      --bg:#f1f5f9; --card:#ffffff; --text:#0f172a;
+      --muted:#475569; --border:#e2e8f0; --accent:#22c55e;
     }
-    html,body{height:100%}
-    body{
-      margin:0;
-      background:linear-gradient(180deg,#f8fafc,#eef2ff);
+    body{margin:0;background:linear-gradient(180deg,#f8fafc,#eef2ff);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-      color:var(--text)
-    }
+      color:var(--text)}
     .container{max-width:900px;margin:28px auto;padding:0 16px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 10px 24px rgba(15,23,42,.06)}
     .header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border)}
-    h1{font-size:20px;margin:0;letter-spacing:.2px}
-    .muted{color:var(--muted);font-size:12px}
-
+    h1{font-size:20px;margin:0}
     .table-wrap{padding:16px 20px}
     table{width:100%;border-collapse:separate;border-spacing:0 8px}
     thead th{font-size:12px;color:var(--muted);font-weight:600;text-align:center}
@@ -33,29 +23,14 @@
     .row td{padding:12px;border-right:1px solid var(--border)}
     .row td:last-child{border-right:none}
     .datecell{font-weight:600;color:#0f172a;text-align:left;white-space:nowrap}
-
-    .slot{position:relative;text-align:center;user-select:none}
+    .slot{text-align:center}
     .slot input{display:none}
-    .tag{
-      display:inline-block;padding:10px 12px;border-radius:10px;
-      border:1px dashed #cbd5e1;min-width:140px;background:white;transition:all .15s ease
-    }
-    /* 选中=空闲（绿色）；未选中默认为忙碌，不上色 */
+    .tag{display:inline-block;padding:10px 12px;border-radius:10px;border:1px dashed #cbd5e1;min-width:140px;background:white}
     .slot input:checked + .tag{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.6);color:#065f46;font-weight:600}
-
-    .footer{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:16px 20px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px
-    }
-    input{
-      font:inherit;border-radius:12px;border:1px solid var(--border);
-      background:white;color:var(--text);padding:10px 12px
-    }
-    .btn{
-      padding:10px 14px;border-radius:12px;border:1px solid var(--border);
-      background:linear-gradient(180deg,#22c55e,#16a34a);color:white;cursor:pointer
-    }
-    .legend{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--muted)}
+    .footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px}
+    input{font:inherit;border-radius:12px;border:1px solid var(--border);background:white;color:var(--text);padding:10px 12px}
+    .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,#22c55e,#16a34a);color:white;cursor:pointer}
+    .legend{font-size:12px;color:var(--muted)}
     .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#eef2ff;border:1px solid var(--border)}
     .dot{width:10px;height:10px;border-radius:50%;background:#22c55e}
   </style>
@@ -65,12 +40,11 @@
     <div class="card" id="app">
       <div class="header">
         <h1>空闲时间收集（11.16–11.30，工作日）</h1>
-        <div class="legend"><span class="pill"><span class="dot"></span> 选中 = 空闲；未选中 = 忙碌</span></div>
+        <div class="legend"><span class="pill"><span class="dot"></span> 选中 = 空闲</span></div>
       </div>
 
-      <!-- 表格区（固定 11.16–11.30，且只含工作日；每行两列：上午/下午） -->
       <div class="table-wrap">
-        <table aria-label="可选择的日期时间表">
+        <table>
           <thead>
             <tr>
               <th style="text-align:left">日期</th>
@@ -82,12 +56,10 @@
         </table>
       </div>
 
-      <!-- 提交区 -->
       <div class="footer">
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <input type="text" id="name" placeholder="您的称呼（必填）" aria-label="称呼" />
-          <input type="email" id="email" placeholder="邮箱（可选）" aria-label="邮箱" />
-          <span class="muted">提交后您会看到一份可复制的结果摘要</span>
+          <input type="text" id="name" placeholder="您的称呼（必填）" />
+          <input type="email" id="email" placeholder="邮箱（可选）" />
         </div>
         <button class="btn" id="submitBtn">提交</button>
       </div>
@@ -95,16 +67,9 @@
   </div>
 
 <script>
-/***********************
- * 配置提交地址：Formspree 或 GAS Web 应用 URL
- ***********************/
-const FORM_ENDPOINT = "https://formspree.io/f/movkvzrv"; // ←← 改成你的地址
+const FORM_ENDPOINT = "https://formspree.io/f/movkvzrv"; // ←替换为你的地址
 
-/***********************
- * 固定日期与列定义
- * 范围：11.16 – 11.30（仅工作日）
- ***********************/
-const RANGE_START = '2025-11-16'; // 如需改年份，改这里
+const RANGE_START = '2025-11-16';
 const RANGE_END   = '2025-11-30';
 const COLS = ["上午 9:00-1:00","下午 1:00-5:00"];
 
@@ -118,13 +83,13 @@ function formatDate(d){
   const y = dt.getFullYear();
   const m = (dt.getMonth()+1).toString().padStart(2,'0');
   const da = dt.getDate().toString().padStart(2,'0');
-  const wd = ["日","一","二","三","四","五","六"][dt.getDay()];
-  return {key:`${y}-${m}-${da}`, label:`${y}-${m}-${da}（周${wd}）`};
+  const wd = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][dt.getDay()];
+  return {key:`${y}-${m}-${da}`, label:`${y}-${m}-${da} (${wd})`};
 }
 function enumerateWeekdays(a,b){
   const res=[]; const start=new Date(a), end=new Date(b);
   for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
-    const day=d.getDay(); // 0=周日,6=周六
+    const day=d.getDay();
     if(day!==0 && day!==6) res.push(new Date(d));
   }
   return res;
@@ -135,36 +100,29 @@ function buildRows(){
   dates.forEach(d=>{
     const {key,label} = formatDate(d);
     const tr = document.createElement('tr'); tr.className='row';
-
     const dateTd = document.createElement('td');
     dateTd.className='datecell';
-    dateTd.textContent = label;
+    dateTd.dataset.date = key;  // 存纯日期
+    dateTd.textContent = label; // 显示带英文周几
     tr.appendChild(dateTd);
 
     COLS.forEach(seg=>{
       const td=document.createElement('td'); td.className='slot';
-      // 生成安全的 id（把空格/符号替换掉）
       const id=`${key}__${seg.replace(/[\\s:.–-]/g,'_')}`;
       td.innerHTML = `<label><input type="checkbox" id="${id}"><span class="tag">${seg}</span></label>`;
       tr.appendChild(td);
     });
-
     tbody.appendChild(tr);
   });
 }
 buildRows();
 
-/***********************
- * 仅收集“选中”的（=空闲）
- ***********************/
 async function submit(){
   const name = nameInput.value.trim();
   if(!name){ alert('请填写称呼'); return; }
-
   const selections = [];
   tbody.querySelectorAll('tr').forEach(row=>{
-    const dateText = row.querySelector('.datecell')?.textContent || '';
-    const dateKey = (dateText.match(/\\d{4}-\\d{2}-\\d{2}/)||[])[0] || '';
+    const dateKey = row.querySelector('.datecell')?.dataset.date || '';
     row.querySelectorAll('.slot').forEach(slot=>{
       const seg = slot.querySelector('.tag')?.textContent || '';
       const cb = slot.querySelector('input');
@@ -177,32 +135,25 @@ async function submit(){
   const payload = {
     name,
     email: emailInput.value.trim() || undefined,
-    selections,                     // 仅包含空闲时段
-    submittedAt: new Date().toISOString(),
-    userAgent: navigator.userAgent
+    selections,
+    submittedAt: new Date().toISOString()
   };
 
   const summary = selections.length
     ? selections.map(s=>`${s.date} ${s.segment}：空闲`).join('\\n')
     : '(未选择任何时段)';
-  alert(`已生成提交内容：\\n\\n称呼：${name}\\n选择：\\n${summary}`);
+  alert(`提交内容：\\n称呼：${name}\\n${summary}`);
 
-  if(!FORM_ENDPOINT || /REPLACE_ME/.test(FORM_ENDPOINT)){
-    console.warn('未配置 FORM_ENDPOINT，数据仅本地提示，不会发送');
-    return;
-  }
+  if(/REPLACE_ME/.test(FORM_ENDPOINT)) return;
   try{
     const res = await fetch(FORM_ENDPOINT,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
-    if(!res.ok) throw new Error('Network response was not ok');
-    alert('提交成功！感谢填写。');
-  }catch(e){
-    console.error(e);
-    alert('提交失败，请稍后重试或联系组织者。');
-  }
+    if(!res.ok) throw new Error();
+    alert('提交成功！');
+  }catch(e){ alert('提交失败'); }
 }
 submitBtn.addEventListener('click', submit);
 </script>
