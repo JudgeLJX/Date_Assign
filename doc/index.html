@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Time Arrangement</title>
+  <style>
+    :root{
+      --bg:#f1f5f9; --card:#ffffff; --text:#0f172a;
+      --muted:#475569; --border:#e2e8f0; --accent:#22c55e;
+    }
+    body{margin:0;background:linear-gradient(180deg,#f8fafc,#eef2ff);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      color:var(--text)}
+    .container{max-width:900px;margin:28px auto;padding:0 16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 10px 24px rgba(15,23,42,.06)}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border)}
+    h1{font-size:20px;margin:0}
+    .table-wrap{padding:16px 20px}
+    table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    thead th{font-size:12px;color:var(--muted);font-weight:600;text-align:center}
+    .row{background:#fafafa;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .row td{padding:12px;border-right:1px solid var(--border)}
+    .row td:last-child{border-right:none}
+    .datecell{font-weight:600;color:#0f172a;text-align:left;white-space:nowrap}
+    .slot{text-align:center}
+    .slot input{display:none}
+    .tag{display:inline-block;padding:10px 12px;border-radius:10px;border:1px dashed #cbd5e1;min-width:140px;background:white}
+    .slot input:checked + .tag{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.6);color:#065f46;font-weight:600}
+    .slot.highlight .tag{
+                          background:#bfdbfe;       /* 浅蓝 */
+                          border-color:#3b82f6;     /* 蓝边 */
+                          color:#1e3a8a;            /* 深蓝字 */
+                          font-weight:600;}
+    .footer{display:flex;justify-content:flex-end;align-items:center;padding:16px 20px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px}
+    input{font:inherit;border-radius:12px;border:1px solid var(--border);background:white;color:var(--text);padding:10px 12px}
+    .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,#22c55e,#16a34a);color:white;cursor:pointer}
+    .legend{font-size:12px;color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#eef2ff;border:1px solid var(--border)}
+    .dot{width:10px;height:10px;border-radius:50%;background:#22c55e}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="app">
+      <div class="header">
+        <h1>Choose Available Time</h1>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="text" id="name" placeholder="Your Name (Needed)" />
+        </div>
+        <div class="legend"><span class="pill"><span class="dot"></span> Chosen = Free</span></div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left">Date</th>
+              <th>Morning 9:00-13:00</th>
+              <th>Afternoon 13:00-17:00</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="footer">
+        <button class="btn" id="submitBtn">Submit</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const FORM_ENDPOINT = "https://formspree.io/f/mldpgvvn"; // ←替换为你的地址
+
+const RANGE_START = '2025-11-16';
+const RANGE_END   = '2025-11-30';
+const COLS = ["Morning 9:00-13:00","Afternoon 13:00-17:00"];
+
+const tbody = document.getElementById('tbody');
+const submitBtn = document.getElementById('submitBtn');
+const nameInput = document.getElementById('name');
+const emailInput = document.getElementById('email');
+
+function formatDate(d){
+  const dt = new Date(d);
+  const y = dt.getFullYear();
+  const m = (dt.getMonth()+1).toString().padStart(2,'0');
+  const da = dt.getDate().toString().padStart(2,'0');
+  const wd = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][dt.getDay()];
+  return {key:`${y}-${m}-${da}`, label:`${y}-${m}-${da} (${wd})`};
+}
+function enumerateWeekdays(a,b){
+  const res=[]; const start=new Date(a), end=new Date(b);
+  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
+    const day=d.getDay();
+    if(day!==0 && day!==6) res.push(new Date(d));
+  }
+  return res;
+}
+function buildRows(){
+  const dates = enumerateWeekdays(RANGE_START, RANGE_END);
+  tbody.innerHTML = '';
+
+  // 需要永久变蓝的“日期 → 时段”清单（字符串要与 COLS/表头一致）
+  const highlight = {
+    "2025-11-17": ["Afternoon 13:00-17:00"],
+    "2025-11-19": ["Afternoon 13:00-17:00"],
+    "2025-11-20": ["Morning 9:00-13:00"],
+    "2025-11-21": ["Afternoon 13:00-17:00"],
+    "2025-11-24": ["Afternoon 13:00-17:00"],
+    "2025-11-25": ["Afternoon 13:00-17:00"],
+    "2025-11-26": ["Afternoon 13:00-17:00"]
+  };
+
+  dates.forEach(d=>{
+    const {key,label} = formatDate(d);
+    const tr = document.createElement('tr'); tr.className='row';
+
+    const dateTd = document.createElement('td');
+    dateTd.className='datecell';
+    dateTd.dataset.date = key;
+    dateTd.textContent = label;
+    tr.appendChild(dateTd);
+
+    COLS.forEach(seg=>{
+      const td=document.createElement('td'); td.className='slot';
+      const id=`${key}__${seg.replace(/[\\s:.–-]/g,'_')}`;
+      td.innerHTML = `<label><input type="checkbox" id="${id}"><span class="tag">${seg}</span></label>`;
+
+      // 命中清单则永久高亮
+      if (highlight[key] && highlight[key].includes(seg)) {
+        td.classList.add('highlight');
+      }
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+buildRows();
+
+async function submit(){
+  const name = nameInput.value.trim();
+  if(!name){ alert('Please fill your name'); return; }
+  const selections = [];
+  tbody.querySelectorAll('tr').forEach(row=>{
+    const dateKey = row.querySelector('.datecell')?.dataset.date || '';
+    row.querySelectorAll('.slot').forEach(slot=>{
+      const seg = slot.querySelector('.tag')?.textContent || '';
+      const cb = slot.querySelector('input');
+      if(cb && cb.checked){
+        selections.push({ date: dateKey, segment: seg, status: 'free' });
+      }
+    });
+  });
+
+  const payload = {
+    name,
+    selections,
+    submittedAt: new Date().toISOString()
+  };
+
+  if(/REPLACE_ME/.test(FORM_ENDPOINT)) return;
+  try{
+    const res = await fetch(FORM_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error();
+    alert('Submission Successful！');
+  }catch(e){ alert('Submit Failed'); }
+}
+submitBtn.addEventListener('click', submit);
+</script>
+</body>
+</html>
